@@ -20,6 +20,7 @@ app.use(bodyParser.json());
 
 
 app.get("/getAll", (req, res) => {
+
     User.find((err, docs) => {
         if (!err) { res.send(docs); }
         else { console.log("error in retriving users" + jason.stringify(err, undefined, 2)); }
@@ -28,7 +29,18 @@ app.get("/getAll", (req, res) => {
 
 });
 
-   
+
+app.get("/getAllUser", (req, res) => {
+
+    User.find(({statut :'user'}),(err, docs) => {
+        if (!err) { res.send(docs); }
+        else { console.log("error in retriving users" + jason.stringify(err, undefined, 2)); }
+
+    })
+
+});
+
+
 
 
 
@@ -36,7 +48,7 @@ app.get("/getAll", (req, res) => {
 
 app.post("/inscription", (req, res) => {
     let data = req.body;
-    
+
     let privateKey = 10;
     let hashedPassword = bcrypt.hashSync(data._motDePass, privateKey);
 
@@ -77,6 +89,11 @@ app.post("/connection", (req, res) => {
             res.status(404).send({ message: "mot de passe incorrect" })
 
         }
+        /*if (!user.etat == "active") {
+            res.status(404).send({ message: "access denied" });
+
+        }*/
+
 
         let token = jwt.sign({ idUser: user._id }, "kts").toString();
         res.status(200).send({ token });
@@ -88,6 +105,78 @@ app.post("/connection", (req, res) => {
     });
 
 });
+
+
+app.put("/acitvate/:id", (req, res) => {
+
+    let id = req.params.id;
+
+
+
+    User.findById({ _id: id }).then((user) => {
+
+
+        if (!user) {
+            res.status(400).send(console.log("user not found" + err));
+        }
+        else {
+            let e = user.etat;
+
+            x: String ;
+            x = (e == "active") ? "desactive" : "active"
+
+            var u = {
+                etat: x
+            }
+
+            User.findByIdAndUpdate({_id :user.id},{$set :u}, { new: true }, (err, doc) => {
+                if (!err) { res.status(200).send(doc); }
+                else {
+                    res.status(400).send(console.log("erreur de mise a jour" + err));
+                }
+            });
+        }
+
+    });
+
+  
+
+})
+
+app.put("/toAdmin/:id", (req, res) => {
+
+    let id = req.params.id;
+
+
+
+    User.findById({ _id: id }).then((user) => {
+
+
+        if (!user) {
+            res.status(400).send(console.log("user not found" + err));
+        }
+        else {
+            let e = user.statut;
+
+            x: String ;
+            x = (e == "admin") ? "user" : "admin"
+
+            var u = {
+                statut: x
+            }
+
+            User.findByIdAndUpdate({_id :user.id},{$set :u}, { new: true }, (err, doc) => {
+                if (!err) { res.status(200).send(doc); }
+                else {
+                    res.status(400).send(console.log("erreur de mise a jour" + err));
+                }
+            });
+        }
+
+    });
+})
+
+
 
 
 module.exports = app;
