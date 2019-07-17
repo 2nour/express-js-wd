@@ -17,7 +17,7 @@ app.use(bodyParser.json());
 
 app.get("/userTodos", (req, res) => {
     let data = req.body;
-    let token = req.get('Authorization');
+    let token = req.headers.authorization;
     let idu = jwt.verify(token, 'kts');
     let id = idu.idUser;
     Todo.find({
@@ -35,7 +35,7 @@ app.get("/userTodos", (req, res) => {
 
 app.get("/userDones", (req, res) => {
     let data = req.body;
-    let token = req.get('Authorization');
+    let token = req.headers.authorization;
     let idu = jwt.verify(token, 'kts');
     let id = idu.idUser;
 
@@ -57,13 +57,25 @@ app.get("/userDones", (req, res) => {
 
 });
 
-app.get('/todoModifAffiche',(req,res)=>{})
+app.get('/todoModifAffiche/:id', (req, res) => {
+
+    let id = req.params.id; 
+    Todo.findOne({ _id :id }).then((todoArray) => {
+
+        res.status(200).send(todoArray);
+    }).catch((e) => {
+        res.status(400).send({
+            message: "erreur : " + e
+        })
+
+});
 
 
+});
 
 app.put("/todoModif/:id", (req, res) => {
     let data = req.body;
-    let token = req.get('Authorization');
+    let token = req.headers.authorization;
     let i = jwt.verify(token, 'kts');
     let idu = i.idUser;
     let idTodo = i.id;
@@ -88,7 +100,7 @@ app.put("/todoModif/:id", (req, res) => {
 
 app.post("/todoAjout", (req, res) => {
     let data = req.body;
-    let token = req.get('Authorization');
+    let token = req.headers.authorization;
     let idu = jwt.verify(token, 'kts');
 
     let todo = new Todo({
@@ -113,7 +125,7 @@ app.post("/todoAjout", (req, res) => {
 
 app.delete('/deleteTodo/:id', (req, res) => {
 
-    let token = req.get('Authorization');
+    let token = req.headers.authorization;
     let idu = jwt.verify(token, 'kts');
     let id = idu.id;
 
@@ -135,9 +147,9 @@ app.delete('/deleteTodo/:id', (req, res) => {
 app.put('/isDone/:id', (req, res) => {
 
     let token = req.headers.authorization;
-   // console.log(token);
+    // console.log(token);
 
-   let i = jwt.verify(token, 'kts');
+    let i = jwt.verify(token, 'kts');
     let idu = i.idUser;
     var todo = {
         etat: true,
