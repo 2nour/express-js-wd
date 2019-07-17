@@ -57,6 +57,8 @@ app.get("/userDones", (req, res) => {
 
 });
 
+app.get('/todoModifAffiche',(req,res)=>{})
+
 
 
 app.put("/todoModif/:id", (req, res) => {
@@ -132,10 +134,10 @@ app.delete('/deleteTodo/:id', (req, res) => {
 
 app.put('/isDone/:id', (req, res) => {
 
-    let token = req.get('Authorization');
-    console.log(token);
+    let token = req.headers.authorization;
+   // console.log(token);
 
-    let i = jwt.verify(token, 'kts');
+   let i = jwt.verify(token, 'kts');
     let idu = i.idUser;
     var todo = {
         etat: true,
@@ -149,6 +151,7 @@ app.put('/isDone/:id', (req, res) => {
         idUser: idu,
         _id: req.params.id
     }, { $set: todo }, { new: true }, (err, doc) => {
+
         if (!err) { res.status(200).send(doc); }
         else {
             res.status(400).send(console.log("erreur de mise a jour" + err));

@@ -32,7 +32,7 @@ app.get("/getAll", (req, res) => {
 
 app.get("/getAllUser", (req, res) => {
 
-    User.find(({statut :'user'}),(err, docs) => {
+    User.find(({ statut: 'user' }), (err, docs) => {
         if (!err) { res.send(docs); }
         else { console.log("error in retriving users" + jason.stringify(err, undefined, 2)); }
 
@@ -95,7 +95,7 @@ app.post("/connection", (req, res) => {
         }*/
 
 
-        let token = jwt.sign({ idUser: user._id }, "kts").toString();
+        let token = jwt.sign({ idUser: user._id, statut: user.statut }, "kts").toString();
         res.status(200).send({ token });
 
     }).catch((err) => {
@@ -122,15 +122,20 @@ app.put("/acitvate/:id", (req, res) => {
         else {
             let e = user.etat;
 
-            x: String ;
+            x: String;
             x = (e == "active") ? "desactive" : "active"
 
             var u = {
                 etat: x
             }
 
-            User.findByIdAndUpdate({_id :user.id},{$set :u}, { new: true }, (err, doc) => {
-                if (!err) { res.status(200).send(doc); }
+            User.findByIdAndUpdate({ _id: user.id }, { $set: u }, { new: true }, (err, doc) => {
+                if (!err) {
+                    User.find({ statut: 'user' }).then((users) => {
+                        res.status(200).send(users);
+
+                    })
+                }
                 else {
                     res.status(400).send(console.log("erreur de mise a jour" + err));
                 }
@@ -139,7 +144,7 @@ app.put("/acitvate/:id", (req, res) => {
 
     });
 
-  
+
 
 })
 
@@ -158,14 +163,14 @@ app.put("/toAdmin/:id", (req, res) => {
         else {
             let e = user.statut;
 
-            x: String ;
+            x: String;
             x = (e == "admin") ? "user" : "admin"
 
             var u = {
                 statut: x
             }
 
-            User.findByIdAndUpdate({_id :user.id},{$set :u}, { new: true }, (err, doc) => {
+            User.findByIdAndUpdate({ _id: user.id }, { $set: u }, { new: true }, (err, doc) => {
                 if (!err) { res.status(200).send(doc); }
                 else {
                     res.status(400).send(console.log("erreur de mise a jour" + err));
