@@ -22,7 +22,20 @@ app.use(bodyParser.json());
 app.get("/getAll", (req, res) => {
 
     User.find((err, docs) => {
-        if (!err) { res.send(docs); }
+        if (!err) {
+             res.send(docs); }
+        else { console.log("error in retriving users" + jason.stringify(err, undefined, 2)); }
+
+    })
+
+});
+
+
+app.get("/countUsers", (req, res) => {
+
+    User.find((err, docs) => {
+        if (!err) {
+             res.send(docs); }
         else { console.log("error in retriving users" + jason.stringify(err, undefined, 2)); }
 
     })
@@ -57,7 +70,8 @@ app.post("/inscription", (req, res) => {
         prenom: data._prenom,
         email: data._email,
         tel: data._tel,
-        motDePass: hashedPassword
+        motDePass: hashedPassword,
+        
     });
 
     user.save().then(() => {
@@ -89,16 +103,12 @@ app.post("/connection", (req, res) => {
             res.status(404).send({ message: "mot de passe incorrect" })
 
         }
-        /*if (!user.etat == "active") {
-            res.status(404).send({ message: "access denied" });
-
-        }*/
-
 
         let token = jwt.sign({ idUser: user._id, statut: user.statut }, "kts").toString();
         res.status(200).send({ token });
 
-    }).catch((err) => {
+    }
+    ).catch((err) => {
         res.status(400).send({
             message: "erreur : " + err
         })
